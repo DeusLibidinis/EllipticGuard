@@ -51,9 +51,9 @@ public class MainActivity extends Activity {
         sensor = SensorControl.findElliptic(manager);
         buildUi();
         refresh();
-        log("Elliptic Guard v0.6. Objetivo 0x" + SensorControl.HANDLE);
+        log("Elliptic Guard " + GuardState.version(this) + ". Objetivo 0x" + SensorControl.HANDLE);
         log("Permiso DUMP: " + (SensorControl.hasDump(this) ? "CONCEDIDO" : "DENEGADO"));
-        log("Nuevo: observador persistente, rafagas al desbloquear y watchdog agresivo.");
+        log("Diagnostico de arranque/actualizacion; vigilante 4 s / 30 s conservado.");
         log("No hay bloqueo UID ni permiso MANAGE_SENSORS.");
         if (Build.VERSION.SDK_INT >= 33
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
@@ -85,7 +85,7 @@ public class MainActivity extends Activity {
         TextView title = text("ELLIPTIC GUARD", 26, Color.rgb(20, 33, 49));
         title.setTypeface(null, 1);
         root.addView(title);
-        TextView version = text("v0.6  ·  POCO X6 Pro  ·  Sin root ni Shizuku", 13,
+        TextView version = text(GuardState.version(this) + "  ·  POCO X6 Pro  ·  Sin root ni Shizuku", 13,
                 Color.rgb(91, 106, 121));
         root.addView(version);
         version.setOnClickListener(v -> secretTap());

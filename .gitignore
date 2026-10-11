@@ -10,3 +10,7 @@
 .gradle/
 .DS_Store
 *.log
+# Local diagnostic captures and private release setup
+/diagnostics/
+.env
+.env.*
