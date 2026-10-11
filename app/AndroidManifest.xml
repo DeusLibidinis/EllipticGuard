@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="dev.deus.ellipticprobe"
-    android:versionCode="7"
-    android:versionName="0.6.1-beta.1">
+    android:versionCode="8"
+    android:versionName="0.6.1-beta.2">
 
     <uses-sdk android:minSdkVersion="31" android:targetSdkVersion="35" />
     <uses-permission android:name="android.permission.DUMP" />
@@ -16,7 +16,7 @@
     <application
         android:allowBackup="false"
         android:debuggable="false"
-        android:label="Elliptic Guard"
+        android:label="@string/app_name"
         android:icon="@drawable/ic_elliptic_guard"
         android:roundIcon="@drawable/ic_elliptic_guard"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
