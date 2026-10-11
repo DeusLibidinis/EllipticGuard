@@ -1,0 +1,12 @@
+# Local build and Android signing materials
+**/build/
+**/*.apk
+**/*.aab
+**/*.keystore
+**/*.jks
+**/*.key
+**/local.properties
+.idea/
+.gradle/
+.DS_Store
+*.log

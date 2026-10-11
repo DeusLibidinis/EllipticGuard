@@ -1,0 +1,47 @@
+name: Device compatibility report
+description: Report an independent device/firmware test (no personal identifiers)
+title: '[Device] '
+labels: ['compatibility']
+body:
+  - type: markdown
+    attributes:
+      value: 'Do not upload IMEI, serial numbers, personal logs, firmware proprietary binaries, or signing keys.'
+  - type: input
+    id: model
+    attributes:
+      label: Device and codename
+      placeholder: 'POCO X6 Pro (duchamp)'
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Android and firmware build
+    validations:
+      required: true
+  - type: input
+    id: sensor
+    attributes:
+      label: Proximity sensor name, vendor and handle
+      placeholder: 'Elliptic Proximity / Elliptic Labs / 0x03000000'
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Observed behavior
+      options:
+        - Manual disable works
+        - Foreground guard works
+        - Automatic boot startup works
+        - Does not work
+        - Not tested yet
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Steps, sanitized logs, observations
+      description: 'Explain how actual sensor behavior was verified; exit=0 alone is not sufficient.'
+    validations:
+      required: true

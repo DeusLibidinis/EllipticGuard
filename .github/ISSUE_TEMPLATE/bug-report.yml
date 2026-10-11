@@ -1,0 +1,20 @@
+name: Bug report
+description: Report a problem on a tested device
+body:
+  - type: input
+    id: version
+    attributes:
+      label: App version and firmware
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps and actual vs expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Sanitized relevant guard log
+      description: 'Remove personal information and identifiers before submitting.'
