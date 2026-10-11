@@ -77,12 +77,13 @@ end
 set -l BUILD $ROOT/build/$MODE
 set -l CLASSES $BUILD/classes
 set -l DEX $BUILD/dex
+set -l GENERATED $BUILD/generated
 set -l UNSIGNED $BUILD/base-unsigned.apk
 set -l WITHDEX $BUILD/with-dex.apk
 set -l ALIGNED $BUILD/aligned.apk
 set -l FINAL $BUILD/EllipticGuard-v$VERSION-$MODE.apk
 rm -rf -- $BUILD
-mkdir -p $CLASSES $DEX
+mkdir -p $CLASSES $DEX $GENERATED
 or exit 1
 set -l MANIFEST $BUILD/AndroidManifest.xml
 cp $ROOT/AndroidManifest.xml $MANIFEST
@@ -91,18 +92,12 @@ if test "$MODE" = debug
     string replace 'android:debuggable="false"' 'android:debuggable="true"' < $ROOT/AndroidManifest.xml > $MANIFEST
 end
 
-echo '[1/6] Compilando Java...'
-javac -source 8 -target 8 -Xlint:-options -classpath $PLATFORM -d $CLASSES $ROOT/src/dev/deus/ellipticprobe/*.java
-or exit 1
-
-echo '[2/6] Generando DEX...'
-set -l CLASSFILES (find $CLASSES -type f -name '*.class' | sort)
-$BT/d8 --lib $PLATFORM --min-api 31 --output $DEX $CLASSFILES
-or exit 1
-
-echo '[3/6] Compilando recursos Deus Libidinis...'
+# Desde beta.2 la UI utiliza R.string.*. Android no proporciona R.java
+# dentro de android.jar: AAPT2 debe generarlo ANTES de invocar javac.
+echo '[1/6] Compilando recursos Deus Libidinis...'
 set -l RESCOMPILED $BUILD/compiled-res
 mkdir -p $RESCOMPILED
+or exit 1
 $BT/aapt2 compile --dir $ROOT/res -o $RESCOMPILED
 or exit 1
 set -l RESOURCE_ARGS
@@ -113,7 +108,21 @@ if test (count $RESOURCE_ARGS) -eq 0
     echo 'ERROR: No se encontraron recursos compilados.'
     exit 1
 end
-$BT/aapt2 link -o $UNSIGNED -I $PLATFORM --manifest $MANIFEST $RESOURCE_ARGS
+
+echo '[2/6] Enlazando recursos y generando R.java...'
+$BT/aapt2 link -o $UNSIGNED -I $PLATFORM --manifest $MANIFEST --java $GENERATED $RESOURCE_ARGS
+or exit 1
+set -l RFILES (find $GENERATED -type f -name 'R.java' | sort)
+if test (count $RFILES) -ne 1
+    echo 'ERROR: AAPT2 no genero exactamente un R.java.'
+    exit 1
+end
+
+echo '[3/6] Compilando Java y generando DEX...'
+javac -source 8 -target 8 -Xlint:-options -classpath $PLATFORM -d $CLASSES $RFILES $ROOT/src/dev/deus/ellipticprobe/*.java
+or exit 1
+set -l CLASSFILES (find $CLASSES -type f -name '*.class' | sort)
+$BT/d8 --lib $PLATFORM --min-api 31 --output $DEX $CLASSFILES
 or exit 1
 
 echo '[4/6] Empaquetando DEX...'
