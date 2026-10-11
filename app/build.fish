@@ -110,7 +110,8 @@ if test (count $RESOURCE_ARGS) -eq 0
 end
 
 echo '[2/6] Enlazando recursos y generando R.java...'
-$BT/aapt2 link -o $UNSIGNED -I $PLATFORM --manifest $MANIFEST --java $GENERATED $RESOURCE_ARGS
+# `-R` usa semantica de overlay; aceptar los recursos nuevos de values-es sin <add-resource>.
+$BT/aapt2 link -o $UNSIGNED -I $PLATFORM --manifest $MANIFEST --java $GENERATED --auto-add-overlay $RESOURCE_ARGS
 or exit 1
 set -l RFILES (find $GENERATED -type f -name 'R.java' | sort)
 if test (count $RFILES) -ne 1
