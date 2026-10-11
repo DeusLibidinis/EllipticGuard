@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Elliptic Guard</string>
+    <string name="icon_description">Elliptic Guard. Deus Libidinis shield.</string>
+    <string name="version_line">%1$s · POCO X6 Pro · No root or Shizuku</string>
+    <string name="language_label">Language</string>
+    <string name="language_system">System</string>
+    <string name="language_es">Español</string>
+    <string name="language_en">English</string>
+    <string name="guard_switch">Persistent watchdog / autostart</string>
+    <string name="start_now">START WATCHDOG NOW</string>
+    <string name="force_burst">FORCE A NEW DISABLE BURST</string>
+    <string name="manual_disable">DISABLE Elliptic (manual test)</string>
+    <string name="stop_enable">STOP WATCHDOG AND ENABLE Elliptic</string>
+    <string name="refresh">REFRESH STATUS</string>
+    <string name="show_log">VIEW WATCHDOG LOG</string>
+    <string name="copy_log">COPY WATCHDOG LOG</string>
+    <string name="battery_note">Aggressive monitoring: continuous listener, bursts after unlock and checks every 4 seconds while the screen is on. The service displays a persistent notification and may increase battery use. DUMP permission is required; verify behavior in another app.</string>
+    <string name="permission_granted">GRANTED</string>
+    <string name="permission_denied">DENIED</string>
+    <string name="found_no">NOT FOUND</string>
+    <string name="state_running">RUNNING</string>
+    <string name="state_stopped">STOPPED</string>
+    <string name="state_enabled">ENABLED</string>
+    <string name="state_disabled">DISABLED</string>
+    <string name="no_commands">No commands yet</string>
+    <string name="status_line">DUMP: %1$s\nElliptic: %2$s\nWatchdog (process): %3$s\nAutostart: %4$s\nDisable attempts: %5$d · events: %6$d\nLast command: %7$s</string>
+    <string name="log_app_start">Elliptic Guard %1$s. Target 0x%2$s</string>
+    <string name="log_dump">DUMP permission: %1$s</string>
+    <string name="log_intro">Boot/update diagnostics available; 4s / 30s watchdog unchanged.</string>
+    <string name="log_no_uid">No UID restrictions or MANAGE_SENSORS permission.</string>
+    <string name="log_enable_guard">Enabling watchdog...</string>
+    <string name="log_disable_guard">Stopping watchdog (does not re-enable the sensor).</string>
+    <string name="log_start_requested">Start requested. Check the persistent notification.</string>
+    <string name="log_burst_requested">Disable burst requested from watchdog service.</string>
+    <string name="log_fallback">Service not running: attempting manual disable.</string>
+    <string name="log_stop_wait">Watchdog stopped. Waiting 1.5 s before enabling...</string>
+    <string name="log_enable_result">Manual ENABLE: %1$s</string>
+    <string name="log_verify">Check in a sensor diagnostic app; exit=0 is not proof.</string>
+    <string name="log_header">=== PERSISTENT LOG ===\n%1$s</string>
+    <string name="log_copied">Log copied to clipboard.</string>
+    <string name="log_start_error">ERROR starting watchdog from UI: %1$s</string>
+    <string name="log_disable_unavailable">Cannot disable: Elliptic missing or DUMP permission not granted.</string>
+    <string name="log_register_error">Temporary sensor registration error: %1$s</string>
+    <string name="log_register_failed">Could not register Elliptic temporarily.</string>
+    <string name="log_register_wait">Temporary sensor registered; waiting 1800 ms...</string>
+    <string name="log_disable_result">Manual DISABLE: %1$s; events=%2$d</string>
+    <string name="log_check_external">Verify with another app. This control is reversible.</string>
+    <string name="easter_title">DEUS LIBIDINIS // DL-03000000</string>
+    <string name="easter_message">ELLIPTIC GUARD PROTOCOL\n\nThe ultrasonic ghost has been identified.\nIts access to reality remains under surveillance.\n\nNo root. No Shizuku. No surrender to a proximity sensor.\n\nResearch and development: Deus Libidinis\nInternal signature: DL / 0x03000000\n\nIf it wakes up again, we will turn it off again.</string>
+    <string name="close_easter">Close file</string>
+    <string name="notif_active">Elliptic Guard active</string>
+    <string name="notif_text">Monitoring and disabling virtual proximity</string>
+    <string name="notif_stop">Stop</string>
+    <string name="notif_channel_description">Monitoring Elliptic Proximity reactivations</string>
+    <string name="guide_button">HYPEROS SETUP GUIDE</string>
+    <string name="guide_title">HyperOS setup</string>
+    <string name="guide_text">1. Grant DUMP from a computer using ADB.\n2. Enable background autostart in HyperOS application settings.\n3. Allow notifications.\n4. Set battery usage to unrestricted.\n5. Start the watchdog once and verify with a sensor diagnostic app.\n6. After reboot, verify the foreground service and repeat an unlock test.</string>
+    <string name="notifications_granted">Notifications allowed</string>
+    <string name="notifications_denied">Notifications blocked</string>
+</resources>
