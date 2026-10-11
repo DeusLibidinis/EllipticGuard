@@ -278,7 +278,7 @@ public final class GuardService extends Service {
         if (manager == null) return;
         NotificationChannel channel = new NotificationChannel(CHANNEL, "Elliptic Guard",
                 NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription("Vigilancia de reactivaciones del sensor Elliptic Proximity");
+        channel.setDescription(getString(R.string.notif_channel_description));
         manager.createNotificationChannel(channel);
     }
 
@@ -296,11 +296,11 @@ public final class GuardService extends Service {
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         return new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(notificationIcon())
-                .setContentTitle("Elliptic Guard activo")
-                .setContentText("Vigilando y desactivando la proximidad virtual")
+                .setContentTitle(getString(R.string.notif_active))
+                .setContentText(getString(R.string.notif_text))
                 .setOngoing(true)
                 .setContentIntent(content)
-                .addAction(new Notification.Action.Builder(null, "Detener", stopIntent).build())
+                .addAction(new Notification.Action.Builder(null, getString(R.string.notif_stop), stopIntent).build())
                 .build();
     }
 
