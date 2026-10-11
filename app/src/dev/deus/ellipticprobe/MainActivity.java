@@ -8,6 +8,9 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -45,6 +48,10 @@ public class MainActivity extends Activity {
     private int secretTapCount = 0;
     private long lastSecretTap = 0L;
 
+    @Override protected void attachBaseContext(Context base) {
+        super.attachBaseContext(Language.wrap(base));
+    }
+
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         manager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -78,14 +85,14 @@ public class MainActivity extends Activity {
         shield.setScaleType(ImageView.ScaleType.FIT_CENTER);
         LinearLayout.LayoutParams shieldLp = new LinearLayout.LayoutParams(dp(94), dp(94));
         shieldLp.gravity = android.view.Gravity.CENTER_HORIZONTAL;
-        shield.setContentDescription("Elliptic Guard. Escudo Deus Libidinis.");
+        shield.setContentDescription(getString(R.string.icon_description));
         root.addView(shield, shieldLp);
         shield.setOnClickListener(v -> secretTap());
 
-        TextView title = text("ELLIPTIC GUARD", 26, Color.rgb(20, 33, 49));
+        TextView title = text(getString(R.string.app_name).toUpperCase(Locale.ROOT), 26, Color.rgb(20, 33, 49));
         title.setTypeface(null, 1);
         root.addView(title);
-        TextView version = text(GuardState.version(this) + "  ·  POCO X6 Pro  ·  Sin root ni Shizuku", 13,
+        TextView version = text(getString(R.string.version_line, GuardState.version(this)), 13,
                 Color.rgb(91, 106, 121));
         root.addView(version);
         version.setOnClickListener(v -> secretTap());
@@ -94,93 +101,121 @@ public class MainActivity extends Activity {
         credit.setLetterSpacing(0.06f);
         margin(root, credit, 5);
 
+        TextView languageTitle = text(getString(R.string.language_label), 13, Color.rgb(35, 50, 62));
+        margin(root, languageTitle, 12);
+        Spinner language = new Spinner(this);
+        String[] languages = {getString(R.string.language_system), getString(R.string.language_es), getString(R.string.language_en)};
+        ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item, languages);
+        language.setAdapter(languageAdapter);
+        String selectedLanguage = Language.get(this);
+        language.setSelection("es".equals(selectedLanguage) ? 1 : "en".equals(selectedLanguage) ? 2 : 0);
+        language.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            private boolean first = true;
+            @Override public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view,
+                    int position, long id) {
+                String selected = position == 1 ? "es" : position == 2 ? "en" : Language.SYSTEM;
+                if (first) { first = false; return; }
+                if (!selected.equals(Language.get(MainActivity.this))) {
+                    Language.set(MainActivity.this, selected);
+                    recreate();
+                }
+            }
+            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) { }
+        });
+        root.addView(language);
+
+        Button guide = button(getString(R.string.guide_button));
+        margin(root, guide, 6);
+        guide.setOnClickListener(v -> new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.guide_title))
+                .setMessage(getString(R.string.guide_text))
+                .setPositiveButton(android.R.string.ok, null).show());
+
         status = text("", 14, Color.rgb(35, 50, 62));
         status.setPadding(dp(12), dp(12), dp(12), dp(12));
         status.setBackgroundColor(Color.rgb(227, 235, 246));
         margin(root, status, 12);
 
         guardSwitch = new Switch(this);
-        guardSwitch.setText("Vigilante persistente / autoinicio");
+        guardSwitch.setText(getString(R.string.guard_switch));
         guardSwitch.setTextSize(16);
         guardSwitch.setChecked(GuardState.enabled(this));
         margin(root, guardSwitch, 12);
         guardSwitch.setOnCheckedChangeListener((v, checked) -> {
             GuardState.setEnabled(this, checked);
-            log(checked ? "Activando vigilante..." : "Deteniendo vigilante (no reactiva el sensor).");
+            log(checked ? getString(R.string.log_enable_guard) : getString(R.string.log_disable_guard));
             if (checked) startGuard(GuardService.ACTION_START);
             else stopGuard();
             ui.postDelayed(this::refresh, 1200L);
         });
 
-        Button start = button("INICIAR VIGILANTE AHORA");
+        Button start = button(getString(R.string.start_now));
         margin(root, start, 6);
         start.setOnClickListener(v -> {
             if (!GuardState.enabled(this)) {
                 GuardState.setEnabled(this, true);
                 guardSwitch.setChecked(true);
             } else startGuard(GuardService.ACTION_START);
-            log("Inicio solicitado. Comprobar la notificacion persistente.");
+            log(getString(R.string.log_start_requested));
             ui.postDelayed(this::refresh, 1200L);
         });
 
-        Button burst = button("FORZAR RAFAGA AHORA");
+        Button burst = button(getString(R.string.force_burst));
         margin(root, burst, 6);
         burst.setOnClickListener(v -> {
             if (GuardService.running) {
                 startGuard(GuardService.ACTION_POKE);
-                log("Rafaga solicitada al servicio vigilante.");
+                log(getString(R.string.log_burst_requested));
             } else {
-                log("Servicio no activo: se probara una desactivacion manual.");
+                log(getString(R.string.log_fallback));
                 manualDisable();
             }
         });
 
-        forceDisable = button("DESACTIVAR Elliptic (prueba manual)");
+        forceDisable = button(getString(R.string.manual_disable));
         margin(root, forceDisable, 6);
         forceDisable.setOnClickListener(v -> manualDisable());
 
-        stopAndEnable = button("DETENER VIGILANTE Y REACTIVAR Elliptic");
+        stopAndEnable = button(getString(R.string.stop_enable));
         margin(root, stopAndEnable, 6);
         stopAndEnable.setOnClickListener(v -> {
             if (busy) return;
             guardSwitch.setChecked(false);
             GuardState.setEnabled(this, false);
             stopGuard();
-            log("Vigilante detenido. Esperando 1.5s antes de enable...");
+            log(getString(R.string.log_stop_wait));
             setBusy(true);
             ui.postDelayed(() -> new Thread(() -> {
                 String result = SensorControl.command("enable");
                 runOnUiThread(() -> {
-                    log("ENABLE manual: " + result);
-                    log("Verifica en el diagnostico; exit=0 no demuestra el efecto.");
+                    log(getString(R.string.log_enable_result, result));
+                    log(getString(R.string.log_verify));
                     setBusy(false);
                     refresh();
                 });
             }, "elliptic-enable").start(), 1500L);
         });
 
-        Button refresh = button("ACTUALIZAR ESTADO");
+        Button refresh = button(getString(R.string.refresh));
         margin(root, refresh, 6);
         refresh.setOnClickListener(v -> refresh());
 
-        Button read = button("VER REGISTRO DEL VIGILANTE");
+        Button read = button(getString(R.string.show_log));
         margin(root, read, 6);
-        read.setOnClickListener(v -> log("=== LOG PERSISTENTE ===\n" + GuardState.report(this)));
+        read.setOnClickListener(v -> log(getString(R.string.log_header, GuardState.report(this))));
 
-        Button copy = button("COPIAR LOG PERSISTENTE");
+        Button copy = button(getString(R.string.copy_log));
         margin(root, copy, 6);
         copy.setOnClickListener(v -> {
             ClipboardManager cb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (cb != null) {
                 cb.setPrimaryClip(ClipData.newPlainText("Elliptic Guard", GuardState.report(this)));
-                log("Log copiado al portapapeles.");
+                log(getString(R.string.log_copied));
             }
         });
 
-        TextView note = text("Vigilancia agresiva: listener continuo, rafagas de desbloqueo y "
-                + "comprobacion cada 4 s con pantalla encendida. El servicio usa una "
-                + "notificacion permanente y puede gastar mas bateria. Sin root, DUMP es "
-                + "necesario. El resultado depende de HyperOS; valida con otra app.", 13,
+        TextView note = text(getString(R.string.battery_note), 13,
                 Color.rgb(102, 82, 40));
         margin(root, note, 14);
 
@@ -202,16 +237,9 @@ public class MainActivity extends Activity {
         if (secretTapCount < 7) return;
         secretTapCount = 0;
         new AlertDialog.Builder(this)
-                .setTitle("DEUS LIBIDINIS  //  DL-03000000")
-                .setMessage("PROTOCOLO ELLIPTIC GUARD\n\n"
-                        + "El fantasma ultrasónico ha sido identificado.\n"
-                        + "Su acceso a la realidad queda bajo vigilancia.\n\n"
-                        + "Sin root. Sin Shizuku. Sin rendirse ante un sensor de proximidad.\n\n"
-                        + "Investigación y proyecto: Deus Libidinis\n"
-                        + "Firma interna: DL / 0x03000000\n\n"
-                        + "«Si insiste en despertar, volveremos a apagarlo»."
-                )
-                .setPositiveButton("Cerrar archivo", (dialog, which) -> { })
+                .setTitle(getString(R.string.easter_title))
+                .setMessage(getString(R.string.easter_message))
+                .setPositiveButton(getString(R.string.close_easter), (dialog, which) -> { })
                 .show();
     }
 
@@ -251,13 +279,12 @@ public class MainActivity extends Activity {
 
     private void refresh() {
         sensor = SensorControl.findElliptic(manager);
-        status.setText("DUMP: " + (SensorControl.hasDump(this) ? "CONCEDIDO" : "DENEGADO")
-                + "\nElliptic: " + (sensor == null ? "NO ENCONTRADO" : sensor.getName())
-                + "\nVigilante (proceso): " + (GuardService.running ? "ACTIVO" : "DETENIDO")
-                + "\nAutoinicio: " + (GuardState.enabled(this) ? "ACTIVADO" : "DESACTIVADO")
-                + "\nIntentos disable: " + GuardService.attempts
-                + " | eventos: " + GuardService.sensorEvents
-                + "\nUltimo comando: " + GuardService.lastResult);
+        status.setText(getString(R.string.status_line,
+                getString(SensorControl.hasDump(this) ? R.string.permission_granted : R.string.permission_denied),
+                sensor == null ? getString(R.string.found_no) : sensor.getName(),
+                getString(GuardService.running ? R.string.state_running : R.string.state_stopped),
+                getString(GuardState.enabled(this) ? R.string.state_enabled : R.string.state_disabled),
+                GuardService.attempts, GuardService.sensorEvents, GuardService.lastResult));
         if (guardSwitch != null && guardSwitch.isChecked() != GuardState.enabled(this)) {
             guardSwitch.setChecked(GuardState.enabled(this));
         }
@@ -268,7 +295,7 @@ public class MainActivity extends Activity {
             startForegroundService(new Intent(this, GuardService.class).setAction(action));
         } catch (Exception e) {
             GuardState.log(this, "ERROR lanzando vigilante desde interfaz: " + e);
-            log("ERROR inicio: " + e);
+            log(getString(R.string.log_start_error, e.toString()));
         }
     }
 
@@ -285,7 +312,7 @@ public class MainActivity extends Activity {
     private void manualDisable() {
         if (busy) return;
         if (sensor == null || !SensorControl.hasDump(this)) {
-            log("No se puede desactivar: falta Elliptic o permiso DUMP.");
+            log(getString(R.string.log_disable_unavailable));
             return;
         }
         setBusy(true);
@@ -299,20 +326,20 @@ public class MainActivity extends Activity {
             ok = manager.registerListener(temporaryListener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
         } catch (Exception e) {
             ok = false;
-            log("Error registro temporal: " + e);
+            log(getString(R.string.log_register_error, e.toString()));
         }
         if (!ok) {
-            log("No se pudo registrar temporalmente Elliptic.");
+            log(getString(R.string.log_register_failed));
             setBusy(false);
             return;
         }
-        log("Registro temporal activo; esperando 1800ms...");
+        log(getString(R.string.log_register_wait));
         ui.postDelayed(() -> new Thread(() -> {
             String result = SensorControl.command("disable");
             runOnUiThread(() -> {
                 releaseTemporary();
-                log("DISABLE manual: " + result + "; eventos=" + temporaryEvents);
-                log("Verifica con otra app. Es un control reversible.");
+                log(getString(R.string.log_disable_result, result, temporaryEvents));
+                log(getString(R.string.log_check_external));
                 setBusy(false);
                 refresh();
             });
