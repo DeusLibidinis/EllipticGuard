@@ -64,6 +64,23 @@ correcta; **no desinstalar para completar esta prueba**. No compartir la clave.
 | FGS confirmado, error DUMP o listener | Resolver el requisito exacto, no añadir reintentos de BOOT |
 | FGS y listener correctos, proximidad activa | Investigar vigilancia/HAL; no es un fallo de entrega de actualización |
 
+
+## Resultado observado en el POCO X6 Pro original: beta.2 (2026-10-11)
+
+**Recuperación del servicio tras una actualización instalada con `adb install -r`: CONFIRMADA en una unidad.**
+La beta.2 (`versionCode=8`) fue instalada sobre la APK anterior con **certificados SHA-256 idénticos**, sin desinstalar ni abrir la interfaz después. Los diagnósticos independientes mostraron:
+
+- `00:44:06.890`: `RECEPTOR android.intent.action.MY_PACKAGE_REPLACED: recibido; version=0.6.1-beta.2 (8); autoinicio=true; DUMP=true`.
+- `00:44:07.210`: `SERVICIO: FGS confirmado; version=0.6.1-beta.2 (8); origen=android.intent.action.MY_PACKAGE_REPLACED`.
+- `00:44:07.255`: `Listener Elliptic registrado y PERMANENTE`.
+- `00:44:09`, `00:44:11`, `00:44:15`, `00:44:19` y `00:45:07`: comandos de vigilancia con `exit=0` y registro de intentos.
+- `dumpsys activity services` mostró `GuardService` con `isForeground=true` y `foregroundId=3305`. Permisos `DUMP` y notificaciones concedidos.
+
+**Alcance preciso:** esta evidencia confirma la entrega del evento y la recuperación autónoma del servicio con el listener y las invocaciones `dumpsys`; **NO demuestra todavía** el efecto real sobre Elliptic tras el reemplazo, estabilidad 24–48 h, consumo energético, recuperación en todos los reemplazos o compatibilidad en otros dispositivos. Validar proximidad con una aplicación independiente y WhatsApp, incluyendo bloqueo/desbloqueo. Conservamos el PR en borrador hasta las comprobaciones pendientes.
+
+**Precaución al usar el script en CachyOS:** `ls` puede ser alias de `eza`. Evitar `ls -dt diagnostics/*-despues` si da `invalid value ... for --time`. Usar la ruta que imprime el propio script, p. ej. `set DIR ~/Descargas/EllipticGuard-GitHub/diagnostics/20261011-004529-despues`, y consultar `$DIR/service.txt` y `$DIR/guard-logcat.txt`.
+
+
 ## Validación que sigue pendiente
 
 - Autoinicio **v0.6** en frío sigue sin demostrarse: el éxito histórico fue v0.5.
