@@ -81,6 +81,15 @@ La beta.2 (`versionCode=8`) fue instalada sobre la APK anterior con **certificad
 **Precaución al usar el script en CachyOS:** `ls` puede ser alias de `eza`. Evitar `ls -dt diagnostics/*-despues` si da `invalid value ... for --time`. Usar la ruta que imprime el propio script, p. ej. `set DIR ~/Descargas/EllipticGuard-GitHub/diagnostics/20261011-004529-despues`, y consultar `$DIR/service.txt` y `$DIR/guard-logcat.txt`.
 
 
+
+## Observación de uso continuado: ~24 horas (2026-10-12)
+
+El autor informa que la versión `0.6.1-beta.2` funcionó aparentemente bien durante aproximadamente 24 horas de uso habitual en su **POCO X6 Pro**, sin reaparición reportada del problema de proximidad. La captura de la pantalla de batería de HyperOS muestra **Elliptic Guard: 0.97 %**; el denominador de ese porcentaje no quedó verificado y **no debe describirse** como una pérdida directa de 0.97 puntos de carga.
+
+**Nivel de evidencia:** prueba de usuario positiva, pero todavía no se ha recibido un diagnóstico final `estabilidad24h` con `dumpsys activity services` ni registro de eventos, y la captura por sí sola no valida la desactivación del sensor en ese momento. No se han medido rigurosamente los mAh, la tasa de wakelocks o la continuidad del servicio en todas las horas. No equivale a certificación general ni a compatibilidad con la segunda unidad.
+
+Para cerrar esta etapa: capturar `fish scripts/collect-update-evidence.fish estabilidad24h` sin reiniciar manualmente el vigilante; confirmar `isForeground=true` y eficacia en diagnóstico de proximidad/WhatsApp, además de revisar la pantalla de consumo con el intervalo de medida visible. El fallo de instalación gráfica de la beta.1 en el dispositivo de la pareja queda pendiente de obtener mensaje de ADB.
+
 ## Validación que sigue pendiente
 
 - Autoinicio **v0.6** en frío sigue sin demostrarse: el éxito histórico fue v0.5.
