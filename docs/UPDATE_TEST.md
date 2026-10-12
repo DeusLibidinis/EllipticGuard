@@ -90,6 +90,27 @@ El autor informa que la versión `0.6.1-beta.2` funcionó aparentemente bien dur
 
 Para cerrar esta etapa: capturar `fish scripts/collect-update-evidence.fish estabilidad24h` sin reiniciar manualmente el vigilante; confirmar `isForeground=true` y eficacia en diagnóstico de proximidad/WhatsApp, además de revisar la pantalla de consumo con el intervalo de medida visible. El fallo de instalación gráfica de la beta.1 en el dispositivo de la pareja queda pendiente de obtener mensaje de ADB.
 
+
+## Diagnóstico adjunto de estabilidad (2026-10-12 02:12 CST)
+
+El autor proporcionó el ZIP local `20261012-021210-estabilidad24h.zip` generado por `scripts/collect-update-evidence.fish estabilidad24h`. Se inspeccionaron `service.txt`, `package-summary.txt`, `guard-logcat.txt`, `guard-preferences.txt`, `device-time.txt`, `model.txt`, `codename.txt` y `firmware.txt`. No se incorporó al repositorio el ZIP ni la copia íntegra de preferencias/logs.
+
+**Resultado observado en el dispositivo original:**
+
+- Hora del dispositivo al capturar: `2026-10-12 02:12:10 CST`.
+- Modelo `2311DRK48G`, codename `duchamp`, firmware `OS3.0.9.0.WNLMIXM` con Android 16.
+- APK instalada: `versionName=0.6.1-beta.2`, `versionCode=8`, `targetSdk=35`.
+- `GuardService` activo en `dumpsys activity services`, con `isForeground=true`, `foregroundId=3305`, notificación ongoing/no-clear y proceso vivo al capturar.
+- `createTime=-12h57m46s` acredita ~12 h 58 min de existencia del registro de servicio actual, **no 24 h continuas del mismo proceso**.
+- Permisos `DUMP`, `RECEIVE_BOOT_COMPLETED` y `POST_NOTIFICATIONS` concedidos; preferencia `boot_auto_enabled=true`.
+- Último registro: `02:11:41 DISABLE #9670 (WATCHDOG_ON): exit=0; salida vacia; eventos=1`. También `#9622`, `#9634`, `#9646`, `#9658` registrados a intervalos de aproximadamente 48 s; los índices suben en 12 por el registro espaciado de acciones. El contador muestra **9.670 intentos en la instancia actual**, no 9.670 activaciones reales del sensor ni garantía de que todos fueran efectivos.
+- Las 302 líneas retenidas en `guard-preferences.txt` se extienden de `2026-10-11 23:00:44` a `2026-10-12 02:11:41`, con eventos de pantalla y comandos `exit=0`, sin errores en el tramo conservado. El registro es circular/truncado; no permite descartar fallos fuera de ese intervalo.
+- El autor reportó funcionamiento correcto en uso normal durante ~24 h, sin reaparición del fallo de proximidad. La pantalla de batería mostraba `0.97 %` para Elliptic Guard, sin confirmación de cómo HyperOS define ese porcentaje ni medición aislada de mAh.
+
+**Conclusión:** se supera el punto de control funcional comunicado por el usuario y se acredita un vigilante activo con FGS y comandos periódicos al final de la observación. La prueba no constituye garantía de 24 h ininterrumpidas de *un único proceso*, validación experimental de cada `disable`, ni medida precisa de coste energético. La tasa de intentos aconseja analizar consumo y reducir comprobaciones solo después de disponer de comparativas con la estrategia funcional actual.
+
+**Pendientes:** confirmar en diagnóstico externo y WhatsApp al final del ciclo, contrastar consumo con periodos equivalentes, validar ciclo de instalación y permiso DUMP en una segunda unidad POCO X6 Pro (su instalación gráfica beta.1 falló por motivo desconocido), verificar visualmente selector bilingüe y decidir firma de publicación. Mantener PR en borrador.
+
 ## Validación que sigue pendiente
 
 - Autoinicio **v0.6** en frío sigue sin demostrarse: el éxito histórico fue v0.5.
