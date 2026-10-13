@@ -161,3 +161,20 @@ The `10307:8` suffix is direct evidence that the per-UID type-8 control configur
 The experimenter then executed `resume 10307` and `update 10307 all`. A final controlled-app membership check after cleanup was not supplied.
 
 **Interpretation:** In this controlled experiment, a type-restricted `stop` suspended an existing proximity subscription without stopping accelerometer delivery, but a recreated proximity listener could resume events while `10307:8` remained recorded. That is **not a persistent listener-recreation-proof block**. Pending A/B experiment: clean UID, then `stop 10307` without prior `update ... 8`, to establish whether both sensors are stopped and isolate the role of the type filter. Restore via `resume 10307` then `update 10307 all`.
+
+
+## Critical A/B control: `stop 10307` without `update 10307 8` also stops *only* proximity
+
+The experimenter ran the prescribed reset using `resume 10307` and `update 10307 all`, then executed **only**:
+
+```sh
+adb shell dumpsys sensorservice sensorsControl stop 10307
+```
+
+In Sensor Dual Lab (same UID `10307`), **proximity events stopped and accelerometer events continued**. This is the **same observed outcome** as `update 10307 8` followed by `stop 10307`.
+
+**This refutes attributing the observed sensor selectivity to `update ... 8` based on the prior A/B experiments.** `update ... all` is parsed into an empty type vector, and `updateControlTypes` erases an existing per-UID type map entry for an empty vector, so residual configuration after a successful reset is *not* the default assumption.
+
+Reinspection of `MiSensorServiceImpl` (Redmi firmware binary) at `0x26438–0x264c0` shows `stopSensorsByUid` enumerates **all active connections matching the UID** and calls `SensorDevice::setUidControlStateForConnection(connection,true)` with no explicit check for sensor type. In `libsensorservice.so` at `0x53a98`, that function manipulates disabled reasons / activation states for HAL sensor clients. **Possible interpretation, not proven:** the proximity HAL has no other active clients, allowing it to stop, while a shared accelerometer may continue generating/delivering events. This means the current results do **not** establish reliable per-type filtering of an arbitrary application's sensor events.
+
+Safer next A/B: reset the disposable UID and set `update 10307 1` (accelerometer, deliberately **not** proximity), verify controlled-app dump records `10307:1` after `stop`, then observe both counters. If proximity also stops, that demonstrates `update` is not constraining the immediate `stop` behavior in this setup. If proximity continues, selection is plausibly taking effect, but further tests are needed to interpret continued accelerometer readings. Always `resume 10307` / `update 10307 all` afterward. Keep all experiments on UID 10307 only.
