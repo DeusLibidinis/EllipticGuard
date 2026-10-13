@@ -69,3 +69,13 @@ Native `stopSensorsByUid` iterates current active sensor connections matching th
 **Immediate cleanup after the second stop:** run `dumpsys sensorservice sensorsControl resume 10288` and verify 10288 is no longer a controlled app before future experiments.
 
 Potential next test (only after cleanup): use a disposable app that monitors *both* proximity and accelerometer to test `sensorsControl update 10288 8` followed by `stop`, with explicit `resume` and `update 10288 all` reversal. Treat `update` type-list semantics as unverified, do not assume it limits the initial `stop` to type 8.
+
+## Follow-up: `update 10288 8` + `stop 10288` did not interrupt proximity
+
+Experimenter reports that proximity remained operational after running `dumpsys sensorservice sensorsControl update 10288 8` followed by `... stop 10288`. **This attempt is a negative functional result.** No contemporaneous `controlled apps` dump was supplied, so the cause is not established.
+
+Closer inspection of the ARM64 implementation at `0x26ef4–0x26f40` revealed an important guard: the `stop` handler calls `SortedVectorImpl::indexOf(uid)` on the controlled-UID list and **skips both `addControlApp` and `stopSensorsByUid` if the UID is already present** (`tbz x24, #63, 0x270c4`). Thus repeated `stop` requests are not idempotent "resuspend" operations for newly created sensor connections.
+
+The `update` handler at `0x26fb0–0x2708c` only parses decimal sensor-type values and invokes `updateControlTypes(uid,types)`. It does not call `stopSensorsByUid` or force refresh of existing connections. Consequently, a stale controlled UID left after the preceding trial, combined with a new active subscription, is a plausible explanation for the follow-up observation. This remains **hypothesis**, not confirmed without a before/after dump.
+
+A reproducible next trial needs **explicit cleanup first**, `resume 10288` and `update 10288 all`, plus verification that UID 10288 is absent from `controlled apps` before separately testing update and stop. Regardless of result, restore with the same commands and verify working proximity. Type-selective control across multiple sensors is still **unproven**.
