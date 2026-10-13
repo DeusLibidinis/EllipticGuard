@@ -135,3 +135,29 @@ The app has two controls useful for discriminating the next hypothesis:
 - **Recrear AMBOS listeners** re-registers both.
 
 Next experiment: reset test UID with `resume 10307` and `update 10307 all`; open app and validate both counters; configure `update 10307 8` + `stop 10307`, confirm selective effect, and press **Recrear SOLO proximidad** while still marked as controlled. Check whether proximity resumes and whether UID 10307 remains in `controlled apps`; capture events and restore settings. A separate A/B run with `stop 10307` **without** prior `update` is needed to isolate the source of selectivity, with cleanup between trials.
+
+
+## Recreating only proximity listener: type restriction persists in dump, events resume
+
+User performed dual-listener persistence test on `dev.deus.sensorlab`, UID `10307`, on MIUI 14 (Redmi Note 10 Pro), after:
+
+```sh
+adb shell dumpsys sensorservice sensorsControl update 10307 8
+adb shell dumpsys sensorservice sensorsControl stop 10307
+```
+
+User reports proximity events stopped while the **accelerometer** continued to receive events. After pressing **Recrear SOLO proximidad** in Sensor Dual Lab, proximity readings **resumed** (per user's wording "solo proximidad, restablecio sensor"). The contemporaneous post-recreation `dumpsys sensorservice` screenshot showed:
+
+```text
+controlled apps : ... 10307:8 ...
+dev.deus.sensorlab.MainActivity | uid 10307
+Xiaomi Proximity 0x0000002e | status: active
+dev.deus.sensorlab.MainActivity | uid 10307
+icm4x6xx Accelerometer Non-wakeup 0x00000023 | status: active
+```
+
+The `10307:8` suffix is direct evidence that the per-UID type-8 control configuration remains recorded. `status: active` on its own is *not* proof of event delivery; the user additionally reported restored proximity operation. The accelerometer is **not** a gyroscope despite colloquial naming.
+
+The experimenter then executed `resume 10307` and `update 10307 all`. A final controlled-app membership check after cleanup was not supplied.
+
+**Interpretation:** In this controlled experiment, a type-restricted `stop` suspended an existing proximity subscription without stopping accelerometer delivery, but a recreated proximity listener could resume events while `10307:8` remained recorded. That is **not a persistent listener-recreation-proof block**. Pending A/B experiment: clean UID, then `stop 10307` without prior `update ... 8`, to establish whether both sensors are stopped and isolate the role of the type filter. Restore via `resume 10307` then `update 10307 all`.
