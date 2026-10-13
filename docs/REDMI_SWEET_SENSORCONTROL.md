@@ -47,3 +47,25 @@ Next phase, if a test is warranted:
 5. Keep `main` and current `duchamp` implementation unchanged.
 
 **No proprietary blobs are distributed.** This report contains names, addresses, checksums, and independently derived control flow only.
+
+
+## First live UID-control experiment: independently observed
+
+Test application: `io.kodular.borekbandell.Proximity_sensor_test`, user-installed app UID **10288**. Baseline showed a registered, active `Xiaomi Proximity` connection (`Y1.d | uid 10288`, handle `0x0000002e`). The CIT proximity diagnostic separately responded 5.0 (far) and 0.0 (near).
+
+Sequence reported by experimenter:
+
+1. `adb shell dumpsys sensorservice sensorsControl stop 10288` produced no textual output; proximity readings in the third-party diagnostic stopped updating.
+2. Follow-up `dumpsys sensorservice` showed UID **10288** added among `controlled apps`. The existing connection remained listed as `status: active`, which does not prove that sensor events were still being delivered.
+3. `adb shell dumpsys sensorservice sensorsControl resume 10288` was run, followed by a **second** `stop 10288`.
+4. When the experimenter left the diagnostic test screen and returned, proximity readings worked again **without another resume**. No `controlled apps` / active-connection dump was captured after reopening, so persistence of the control list across the recreation is **not established**.
+
+Native `stopSensorsByUid` iterates current active sensor connections matching the UID and calls `SensorDevice::setUidControlStateForConnection(connection, true)`; `resumeSensorsByUid` calls it with `false`. The current experiment is consistent with a connection-scoped stop that can be bypassed by reopening the diagnostic screen / recreating subscriptions. More evidence is needed before explaining the exact cause.
+
+**Verified at this stage:** one temporary, effective UID-specific suspension of proximity events in an app that was registered to proximity; `controlled apps` dump change.
+
+**Not verified:** persistent suspension across listener reconnection, sensor-type-8-only isolation, other sensors unaffected for the same UID, WhatsApp behavior, or Android APK ability to invoke this vendor command without shell privileges.
+
+**Immediate cleanup after the second stop:** run `dumpsys sensorservice sensorsControl resume 10288` and verify 10288 is no longer a controlled app before future experiments.
+
+Potential next test (only after cleanup): use a disposable app that monitors *both* proximity and accelerometer to test `sensorsControl update 10288 8` followed by `stop`, with explicit `resume` and `update 10288 all` reversal. Treat `update` type-list semantics as unverified, do not assume it limits the initial `stop` to type 8.
