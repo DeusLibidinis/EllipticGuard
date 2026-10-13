@@ -79,3 +79,21 @@ Closer inspection of the ARM64 implementation at `0x26ef4–0x26f40` revealed an
 The `update` handler at `0x26fb0–0x2708c` only parses decimal sensor-type values and invokes `updateControlTypes(uid,types)`. It does not call `stopSensorsByUid` or force refresh of existing connections. Consequently, a stale controlled UID left after the preceding trial, combined with a new active subscription, is a plausible explanation for the follow-up observation. This remains **hypothesis**, not confirmed without a before/after dump.
 
 A reproducible next trial needs **explicit cleanup first**, `resume 10288` and `update 10288 all`, plus verification that UID 10288 is absent from `controlled apps` before separately testing update and stop. Regardless of result, restore with the same commands and verify working proximity. Type-selective control across multiple sensors is still **unproven**.
+
+## Clean-state retest: `update 10288 8` then `stop 10288` successfully stopped proximity
+
+New user-observed sequence on Redmi `sweet`, with terminal screenshot:
+
+1. `dumpsys sensorservice sensorsControl resume 10288`, then `... update 10288 all` to clear the previous experiment.
+2. The `controlled apps` list was searched for `10288`: **absent**.
+3. `dumpsys sensorservice sensorsControl update 10288 8`.
+4. A second search showed `10288` **still absent**: `update` by itself did not register the UID as controlled.
+5. `dumpsys sensorservice sensorsControl stop 10288`.
+6. The experimenter confirms the test app **stopped receiving proximity changes**.
+7. `... resume 10288` and `... update 10288 all` were executed to restore state.
+
+This is a **positive functional stop following explicit UID cleanup**, supporting (not proving) the preceding hypothesis that already-controlled-UID state was preventing a repeat `stop` operation. No `controlled apps` dump was captured *after* this successful `stop`; it is not correct to claim that the post-stop UID state was directly measured in this retest. No sensor readings after cleanup were supplied.
+
+**Not yet demonstrated:** whether `update 10288 8` affects type-level selection, whether a second sensor belonging to the *same app UID* stays active, whether a recreated sensor listener stays blocked, or whether the commands can be issued from a non-shell Android app. Since `stop 10288` alone had succeeded in the initial clean experiment, the value added by `update 10288 8` remains **unproven**.
+
+Next safe trial should isolate application re-registration (with explicit before/after controlled-UID snapshots), then type-level isolation in a test app that exposes at least two sensor types; record and restore a pristine UID state after each trial. Neither current POCO code nor the default GitHub branch has been changed.
