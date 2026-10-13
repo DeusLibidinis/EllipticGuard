@@ -113,3 +113,25 @@ This demonstrates a **recoverable, but nonpersistent, UID-scoped suspension**. I
 **Still unverified and important for implementation:** `update <uid> 8` truly limits restrictions to proximity when the *same UID* has other active sensors; `resume` does not cause unwanted bursts of sensor events; an ordinary APK with `android.permission.DUMP` can execute these native commands; or a low-overhead lifecycle trigger can safely replace continuous `resume` → `stop` loops. Do not enable such a loop on system UIDs or ship the feature in the existing POCO build on the strength of this test alone.
 
 Cleanup for the test UID: `dumpsys sensorservice sensorsControl resume 10288` then `dumpsys sensorservice sensorsControl update 10288 all`; verify proximity works and UID is absent from `controlled apps`.
+
+
+## Same-UID dual-sensor selectivity: first positive result
+
+A custom, independent Sensor Dual Lab v0.1 APK (`dev.deus.sensorlab`) was installed on Redmi Note 10 Pro `sweet`; its ADB-verified UID was **10307**. The APK registers both Android `TYPE_PROXIMITY=8` and `TYPE_ACCELEROMETER=1` listeners simultaneously under that same UID and displays live event counters. It does not itself issue privileged commands.
+
+The experimenter ran:
+
+```sh
+adb shell dumpsys sensorservice sensorsControl update 10307 8
+adb shell dumpsys sensorservice sensorsControl stop 10307
+```
+
+**Observed outcome (user reported):** proximity stopped responding; accelerometer continued to receive events. This is the first positive *same-UID, two-type* selectivity observation on this firmware, unlike prior proximity-only diagnostic app experiments.
+
+**Scope of evidence:** the command pair yields selective proximity interruption while retaining accelerometer events in an already-running dual-listener app. It does **not yet prove** that `update` *caused* the selectivity (a matched `stop`-without-`update` control trial is still needed), that the selective block persists when the proximity listener is recreated, or that an ordinary APK can issue Xiaomi's native controls with DUMP alone. No automatic watchdog or non-test-UID control is approved.
+
+The app has two controls useful for discriminating the next hypothesis:
+- **Recrear SOLO proximidad** unregisters/re-registers only the proximity listener without stopping the accelerometer;
+- **Recrear AMBOS listeners** re-registers both.
+
+Next experiment: reset test UID with `resume 10307` and `update 10307 all`; open app and validate both counters; configure `update 10307 8` + `stop 10307`, confirm selective effect, and press **Recrear SOLO proximidad** while still marked as controlled. Check whether proximity resumes and whether UID 10307 remains in `controlled apps`; capture events and restore settings. A separate A/B run with `stop 10307` **without** prior `update` is needed to isolate the source of selectivity, with cleanup between trials.
