@@ -4,6 +4,7 @@
 | --- | --- | --- | --- | --- |
 | POCO X6 Pro (`duchamp`) | `Elliptic Proximity`, `0x03000000` | HyperOS, exact build pending | **Experimental:** manual/foreground guard successful on one unit; automatic service startup after reboot observed on v0.5, v0.6 update behavior not yet verified | Original experimenter logs + independent proximity diagnostic |
 | Second POCO X6 Pro | To be checked | To be checked | Not tested | None yet |
+| Redmi Note 10 Pro (`sweet`, `M2101K6G`) | `Xiaomi Proximity`, `0x0000002e`, type 8 | MIUI `V14.0.8.0.TKFMIXM`, Android 13 | **Research only:** native `sensorsControl` handles UID/type restrictions, different from fixed-handle Elliptic Guard; no suppression trial yet | [ARM64 research](REDMI_SWEET_SENSORCONTROL.md) |
 | Other Xiaomi / Redmi / POCO | Unknown | Unknown | Not tested | None |
 | Other manufacturers | Unknown | Unknown | Unsupported / unknown | None |
 
