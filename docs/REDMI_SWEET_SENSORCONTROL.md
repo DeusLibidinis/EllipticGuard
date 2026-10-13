@@ -178,3 +178,21 @@ In Sensor Dual Lab (same UID `10307`), **proximity events stopped and accelerome
 Reinspection of `MiSensorServiceImpl` (Redmi firmware binary) at `0x26438–0x264c0` shows `stopSensorsByUid` enumerates **all active connections matching the UID** and calls `SensorDevice::setUidControlStateForConnection(connection,true)` with no explicit check for sensor type. In `libsensorservice.so` at `0x53a98`, that function manipulates disabled reasons / activation states for HAL sensor clients. **Possible interpretation, not proven:** the proximity HAL has no other active clients, allowing it to stop, while a shared accelerometer may continue generating/delivering events. This means the current results do **not** establish reliable per-type filtering of an arbitrary application's sensor events.
 
 Safer next A/B: reset the disposable UID and set `update 10307 1` (accelerometer, deliberately **not** proximity), verify controlled-app dump records `10307:1` after `stop`, then observe both counters. If proximity also stops, that demonstrates `update` is not constraining the immediate `stop` behavior in this setup. If proximity continues, selection is plausibly taking effect, but further tests are needed to interpret continued accelerometer readings. Always `resume 10307` / `update 10307 all` afterward. Keep all experiments on UID 10307 only.
+
+
+## Countertest `update 10307 1`: proximity still stops; accelerometer still delivers events
+
+Redmi `sweet` tester performed reset, then configured the *opposite* type:
+
+```sh
+adb shell dumpsys sensorservice sensorsControl resume 10307
+adb shell dumpsys sensorservice sensorsControl update 10307 all
+adb shell dumpsys sensorservice sensorsControl update 10307 1
+adb shell dumpsys sensorservice sensorsControl stop 10307
+```
+
+**User-observed:** only proximity stopped responding. The accelerometer listener in Sensor Dual Lab (`dev.deus.sensorlab`, same UID `10307`) continued receiving events. This **matches both** prior `update 10307 8` + `stop` **and** `stop` without `update`.
+
+**Interpretation corrected:** the observed selective proximity outcome is *not caused by choosing the type 8 in the update command*, at least for currently active listeners in this firmware. Native `stopSensorsByUid()` enumerates all existing connections belonging to the UID without inspecting `updateControlTypes`; `SensorDevice::setUidControlStateForConnection()` records a disabled-client reason and updates hardware activation depending on other clients. In particular, the accelerometer may be active for other UIDs; the precise explanation for its continued event delivery in this setup is **not confirmed**. Do not claim a strong, per-type event filter or that only proximity can ever be affected.
+
+**Next high-value boundary:** whether a third-party APK holding ADB-granted `android.permission.DUMP` can itself execute `/system/bin/dumpsys sensorservice` and `sensorsControl stop <own_uid>`. A standalone Sensor Dual Lab v0.2 overlay has been prepared as an uncompiled test project for that purpose, preserving its existing debug signing key and restricting its controls to `Process.myUid()`; it must be compiled and tested by the developer. The current Elliptic Guard build for POCO remains unchanged.
