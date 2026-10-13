@@ -97,3 +97,19 @@ This is a **positive functional stop following explicit UID cleanup**, supportin
 **Not yet demonstrated:** whether `update 10288 8` affects type-level selection, whether a second sensor belonging to the *same app UID* stays active, whether a recreated sensor listener stays blocked, or whether the commands can be issued from a non-shell Android app. Since `stop 10288` alone had succeeded in the initial clean experiment, the value added by `update 10288 8` remains **unproven**.
 
 Next safe trial should isolate application re-registration (with explicit before/after controlled-UID snapshots), then type-level isolation in a test app that exposes at least two sensor types; record and restore a pristine UID state after each trial. Neither current POCO code nor the default GitHub branch has been changed.
+
+## Confirmed restoration of an effective stop with a `resume` → `stop` cycle
+
+On Redmi Note 10 Pro (`sweet`, MIUI 14), the experimenter independently confirmed this sequence with the third-party proximity diagnostic (`io.kodular.borekbandell.Proximity_sensor_test`, UID `10288`):
+
+1. An initial `sensorsControl stop 10288` interrupted proximity sensor events.
+2. Leaving and re-entering the diagnostic screen restored proximity events **without** an explicit `resume`.
+3. A post-reentry `dumpsys sensorservice` capture showed **UID 10288 remained among `controlled apps`**, with a `Xiaomi Proximity 0x0000002e | status: active` connection associated with UID 10288. A still-registered connection is not in itself proof of event delivery; the operator also observed functioning proximity readings.
+4. Running `dumpsys sensorservice sensorsControl resume 10288` followed immediately by `dumpsys sensorservice sensorsControl stop 10288`, **without exiting the diagnostic screen**, successfully suspended proximity events again (user-reported successful cycle).
+5. The user had previously run `resume 10288` and `update 10288 all` after other trials; a fresh explicit cleanup and final readback after the current cycle were not reported.
+
+This demonstrates a **recoverable, but nonpersistent, UID-scoped suspension**. It supports the observation that `stop` ignores already-controlled UID entries and is therefore unable to resuspend a fresh connection without first removing the UID from the controlled set.
+
+**Still unverified and important for implementation:** `update <uid> 8` truly limits restrictions to proximity when the *same UID* has other active sensors; `resume` does not cause unwanted bursts of sensor events; an ordinary APK with `android.permission.DUMP` can execute these native commands; or a low-overhead lifecycle trigger can safely replace continuous `resume` → `stop` loops. Do not enable such a loop on system UIDs or ship the feature in the existing POCO build on the strength of this test alone.
+
+Cleanup for the test UID: `dumpsys sensorservice sensorsControl resume 10288` then `dumpsys sensorservice sensorsControl update 10288 all`; verify proximity works and UID is absent from `controlled apps`.
