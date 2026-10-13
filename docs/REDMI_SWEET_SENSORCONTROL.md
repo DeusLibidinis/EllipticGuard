@@ -220,3 +220,17 @@ Follow-up from the Redmi experimenter using the Sensor Dual Lab **v0.2** Android
 This confirms the previously predicted **functional failure mode**: a repeated STOP does not reliably reapply control after a fresh listener/session becomes active; explicitly resetting the app's UID control state allows another STOP to work. The static disassembly supports a reason: `SensorControl::executeCommand()` skips `stopSensorsByUid` when the UID is already in its controlled set. A new `dumpsys controlled apps` capture *after the current v0.2 rotation* has not been provided, although the equivalent post-reconnection stale-UID state was directly observed earlier with UID `10288`.
 
 Engineering implication: do **not** implement a watchdog consisting solely of repeated STOP calls. A re-arm may require `resume` before `stop`. Future v0.3 lab can expose a **manual re-arm (RESUME→STOP)** action and log each command separately, and use an orientation/lifecycle A/B test to verify whether activity recreation/listener registration is the triggering event. Do **not** infer that continuous alternating RESUME/STOP is energy-efficient, race-free, or safe for a different app's UID; cross-UID operation and truly isolated type-8 filtering remain untested.
+
+
+## Sensor Dual Lab v0.3: prepared controlled orientation A/B test (not yet device-validated)
+
+A new incremental **source-only overlay** for the independent `dev.deus.sensorlab` experiment has been prepared and syntax-compiled with temporary Android API stubs. **It has not yet been compiled against the developer's Android SDK or executed on the Redmi.** It updates the laboratory, not the Elliptic Guard production code. It is supplied as a downloadable archive in the research conversation, not as a proprietary firmware binary.
+
+Features:
+- Normal `MainActivity` (mode B) lets rotation recreate the Activity and listeners.
+- `StableActivity` (mode A), declared with `android:configChanges="orientation|screenSize|keyboardHidden"`, handles `onConfigurationChanged` while retaining the listeners when the system honors the configuration.
+- Visible counters and `SensorDualLab` logcat tagging for Activity creations, resumes, pauses, configuration changes, and listener registration counts; verify the cause rather than infer from rotation alone.
+- Manual **REARMAR = RESUME → STOP**, serialized with the other native commands and limited to `Process.myUid()`, with no recurring loop.
+- Explicit **RESTORE = RESUME → UPDATE ALL**, also with serialized commands and failure reporting, preserving the original local debug signing key.
+
+Next device trial: reset the own UID; test STOP and physical screen rotation in default mode B; note whether new Activity/re-registered listener resumes proximity; press REARMAR and verify proximity stops again. Restore; switch to mode A; repeat STOP and physical rotation; confirm Activity instance and registration counts remain unchanged, or record deviations, and compare proximity readings. Additionally, in mode A press **Recrear SOLO proximidad** under STOP to isolate listener recreation from configuration change. After each run, restore and verify both sensors work. No automatic control of other applications is being attempted.
