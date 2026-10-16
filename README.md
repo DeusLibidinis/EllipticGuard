@@ -44,6 +44,14 @@ Please open a [device compatibility report](.github/ISSUE_TEMPLATE/device-compat
 
 The hardcoded handle and vendor command are intentionally **not** generalized yet. A sensor named "Elliptic" alone is not sufficient evidence that another device supports the same control command.
 
+## AI-Assisted Development
+
+Elliptic Guard is developed with AI assistance for code implementation, technical analysis, and documentation.
+
+Project direction, hardware testing, validation, and release decisions remain under human supervision. AI-generated suggestions are not considered verified until tested.
+
+The use of AI tools does not alter the project's Apache 2.0 license.
+
 ## License
 
 Apache License 2.0, see [LICENSE](LICENSE). No proprietary Android vendor libraries are included.
