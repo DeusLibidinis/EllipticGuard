@@ -33,6 +33,14 @@ Mantén el `debug.keystore` local para poder actualizar la instalación; **no lo
 Utiliza la plantilla de compatibilidad. No publiques información personal, volcados de sistema sin revisar, claves ni bibliotecas propietarias del fabricante. Licencia: Apache 2.0.
 
 
+## Desarrollo asistido por IA
+
+Elliptic Guard se desarrolla con asistencia de inteligencia artificial para la implementación de código, el análisis técnico y la documentación.
+
+La dirección del proyecto, las pruebas en dispositivos físicos, la validación y las decisiones de publicación permanecen bajo supervisión humana. Las propuestas generadas con IA no se consideran verificadas hasta que se comprueban mediante pruebas.
+
+El uso de herramientas de IA no modifica la licencia Apache 2.0 del proyecto.
+
 ### Identidad Deus Libidinis
 
 La aplicacion incorpora un escudo DL, icono de notificacion propio y firma de autoria visible.
