@@ -2,12 +2,12 @@
 
 Proyecto experimental para desactivar selectivamente el sensor virtual de proximidad **Elliptic Proximity** en un **POCO X6 Pro**, sin root ni Shizuku. Utiliza una interfaz de Xiaomi no documentada en la ayuda estándar de Android y un servicio vigilante para contrarrestar reactivaciones.
 
-**Estado:** prototipo `v0.6`. La desactivación manual y la vigilancia en primer plano funcionaron en las pruebas iniciales de **una unidad** de POCO X6 Pro. **Se observó el autoinicio del vigilante tras reiniciar con v0.5 en la unidad original; falta confirmar el comportamiento después de actualizar a v0.6.** Que `dumpsys` devuelva `exit=0` no demuestra por sí solo que el sensor esté desactivado.
+**Estado:** candidata experimental `0.6.1-beta.1`, basada en v0.6. Diagnóstico de actualización y compilación de Release preparados; validación en teléfono pendiente. La desactivación manual y la vigilancia en primer plano funcionaron en las pruebas iniciales de **una unidad** de POCO X6 Pro. **Se observó el autoinicio del vigilante tras reiniciar con v0.5 en la unidad original; falta confirmar el comportamiento después de actualizar a v0.6.** Que `dumpsys` devuelva `exit=0` no demuestra por sí solo que el sensor esté desactivado.
 
 > [!WARNING]
 > **Atención:** al desactivar globalmente proximidad, la pantalla puede dejar de apagarse al acercar el teléfono a la oreja durante llamadas normales. El vigilante mantiene un servicio con notificación y puede aumentar el consumo de batería.
 
-[English](README.md) | [Instalación](docs/INSTALL.md) | [Prueba de autoinicio](docs/AUTOSTART_TEST.md) | [Compatibilidad](docs/COMPATIBILITY.md) | [Investigación](docs/RESEARCH.md)
+[English](README.md) | [Instalación](docs/INSTALL.md) | [Prueba de autoinicio](docs/AUTOSTART_TEST.md) | [Compatibilidad](docs/COMPATIBILITY.md) | [Investigación](docs/RESEARCH.md) | [Prueba de actualización](docs/UPDATE_TEST.md) | [Preparar Release](docs/RELEASE.md)
 
 ## Función
 
@@ -20,7 +20,7 @@ Requiere SDK Android API 35+, Build Tools 35+, Fish, JDK y ZIP:
 ```fish
 cd app
 fish build.fish
-adb install -r build/EllipticGuard-v0.6.apk
+adb install -r build/debug/EllipticGuard-v0.6.1-beta.1-debug.apk
 adb shell pm grant dev.deus.ellipticprobe android.permission.DUMP
 ```
 

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Elliptic Guard</string>
+    <string name="icon_description">Elliptic Guard. Escudo Deus Libidinis.</string>
+    <string name="version_line">%1$s · POCO X6 Pro · Sin root ni Shizuku</string>
+    <string name="language_label">Idioma</string>
+    <string name="language_system">Sistema</string>
+    <string name="language_es">Español</string>
+    <string name="language_en">English</string>
+    <string name="guard_switch">Vigilante persistente / autoinicio</string>
+    <string name="start_now">INICIAR VIGILANTE AHORA</string>
+    <string name="force_burst">FORZAR RAFAGA AHORA</string>
+    <string name="manual_disable">DESACTIVAR Elliptic (prueba manual)</string>
+    <string name="stop_enable">DETENER VIGILANTE Y REACTIVAR Elliptic</string>
+    <string name="refresh">ACTUALIZAR ESTADO</string>
+    <string name="show_log">VER REGISTRO DEL VIGILANTE</string>
+    <string name="copy_log">COPIAR LOG PERSISTENTE</string>
+    <string name="battery_note">Vigilancia agresiva: listener continuo, rafagas de desbloqueo y comprobacion cada 4 segundos con pantalla encendida. El servicio usa una notificacion permanente y puede gastar mas bateria. Requiere DUMP; verifica con otra app.</string>
+    <string name="permission_granted">CONCEDIDO</string>
+    <string name="permission_denied">DENEGADO</string>
+    <string name="found_no">NO ENCONTRADO</string>
+    <string name="state_running">ACTIVO</string>
+    <string name="state_stopped">DETENIDO</string>
+    <string name="state_enabled">ACTIVADO</string>
+    <string name="state_disabled">DESACTIVADO</string>
+    <string name="no_commands">Sin comandos</string>
+    <string name="status_line">DUMP: %1$s\nElliptic: %2$s\nVigilante (proceso): %3$s\nAutoinicio: %4$s\nIntentos disable: %5$d · eventos: %6$d\nUltimo comando: %7$s</string>
+    <string name="log_app_start">Elliptic Guard %1$s. Objetivo 0x%2$s</string>
+    <string name="log_dump">Permiso DUMP: %1$s</string>
+    <string name="log_intro">Diagnostico de arranque/actualizacion; vigilante 4 s / 30 s conservado.</string>
+    <string name="log_no_uid">No hay bloqueo UID ni permiso MANAGE_SENSORS.</string>
+    <string name="log_enable_guard">Activando vigilante...</string>
+    <string name="log_disable_guard">Deteniendo vigilante (no reactiva el sensor).</string>
+    <string name="log_start_requested">Inicio solicitado. Comprobar la notificacion persistente.</string>
+    <string name="log_burst_requested">Rafaga solicitada al servicio vigilante.</string>
+    <string name="log_fallback">Servicio no activo: se probara una desactivacion manual.</string>
+    <string name="log_stop_wait">Vigilante detenido. Esperando 1.5s antes de enable...</string>
+    <string name="log_enable_result">ENABLE manual: %1$s</string>
+    <string name="log_verify">Verifica en el diagnostico; exit=0 no demuestra el efecto.</string>
+    <string name="log_header">=== LOG PERSISTENTE ===\n%1$s</string>
+    <string name="log_copied">Log copiado al portapapeles.</string>
+    <string name="log_start_error">ERROR lanzando vigilante desde interfaz: %1$s</string>
+    <string name="log_disable_unavailable">No se puede desactivar: falta Elliptic o permiso DUMP.</string>
+    <string name="log_register_error">Error registro temporal: %1$s</string>
+    <string name="log_register_failed">No se pudo registrar temporalmente Elliptic.</string>
+    <string name="log_register_wait">Registro temporal activo; esperando 1800ms...</string>
+    <string name="log_disable_result">DISABLE manual: %1$s; eventos=%2$d</string>
+    <string name="log_check_external">Verifica con otra app. Es un control reversible.</string>
+    <string name="easter_title">DEUS LIBIDINIS // DL-03000000</string>
+    <string name="easter_message">PROTOCOLO ELLIPTIC GUARD\n\nEl fantasma ultrasónico ha sido identificado.\nSu acceso a la realidad queda bajo vigilancia.\n\nSin root. Sin Shizuku. Sin rendirse ante un sensor de proximidad.\n\nInvestigación y proyecto: Deus Libidinis\nFirma interna: DL / 0x03000000\n\nSi insiste en despertar, volveremos a apagarlo.</string>
+    <string name="close_easter">Cerrar archivo</string>
+    <string name="notif_active">Elliptic Guard activo</string>
+    <string name="notif_text">Vigilando y desactivando la proximidad virtual</string>
+    <string name="notif_stop">Detener</string>
+    <string name="notif_channel_description">Vigilancia de reactivaciones del sensor Elliptic Proximity</string>
+    <string name="guide_button">GUÍA DE CONFIGURACIÓN HYPEROS</string>
+    <string name="guide_title">Configuración de HyperOS</string>
+    <string name="guide_text">1. Concede DUMP desde una computadora mediante ADB.\n2. Activa Autoencendido en segundo plano en los ajustes de HyperOS.\n3. Permite las notificaciones.\n4. Configura la batería sin restricciones.\n5. Inicia el vigilante y comprueba con una aplicación de diagnóstico.\n6. Tras reiniciar, verifica el servicio y repite una prueba de desbloqueo.</string>
+    <string name="notifications_granted">Notificaciones permitidas</string>
+    <string name="notifications_denied">Notificaciones bloqueadas</string>
+</resources>

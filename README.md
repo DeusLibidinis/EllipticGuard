@@ -2,12 +2,12 @@
 
 Experimental **rootless** proximity-sensor guard for a tested **POCO X6 Pro** firmware. Uses a Xiaomi-specific `dumpsys sensorservice disable 03000000` command after temporarily registering the Elliptic proximity sensor, with a foreground watchdog to counter later reactivations.
 
-**Status:** `v0.6` experimental prototype. Manual and foreground watchdog operation have worked on one POCO X6 Pro in initial tests. **Automatic watchdog startup after reboot was observed on the original POCO X6 Pro with v0.5; startup after upgrading to v0.6 is not yet confirmed.** Do not interpret an exit code of `0` as proof of actual sensor suppression. No claim of support for all POCO X6 Pro firmware builds or any other device is made.
+**Status:** experimental candidate `0.6.1-beta.1`, based on v0.6. Update diagnostics and release tooling are prepared; on-device validation is pending. Manual and foreground watchdog operation have worked on one POCO X6 Pro in initial tests. **Automatic watchdog startup after reboot was observed on the original POCO X6 Pro with v0.5; startup after upgrading to v0.6 is not yet confirmed.** Do not interpret an exit code of `0` as proof of actual sensor suppression. No claim of support for all POCO X6 Pro firmware builds or any other device is made.
 
 > [!WARNING]
 > This is **not** an official Xiaomi, MediaTek, Elliptic Labs or WhatsApp project. Disabling proximity globally can prevent the screen from turning off when you hold the phone to your ear during normal calls. The watchdog runs a persistent foreground service and can use more power. Install only if you understand these trade-offs.
 
-[Español](README.es.md) | [Installation & safety](docs/INSTALL.md) | [Autostart test](docs/AUTOSTART_TEST.md) | [Compatibility](docs/COMPATIBILITY.md) | [Research notes](docs/RESEARCH.md)
+[Español](README.es.md) | [Installation & safety](docs/INSTALL.md) | [Autostart test](docs/AUTOSTART_TEST.md) | [Compatibility](docs/COMPATIBILITY.md) | [Research notes](docs/RESEARCH.md) | [Update test](docs/UPDATE_TEST.md) | [Release preparation](docs/RELEASE.md)
 
 ## What it does
 
@@ -32,7 +32,7 @@ The current prototype builds with `app/build.fish` and a local Android SDK. **Pr
 ```fish
 cd app
 fish build.fish
-adb install -r build/EllipticGuard-v0.6.apk
+adb install -r build/debug/EllipticGuard-v0.6.1-beta.1-debug.apk
 adb shell pm grant dev.deus.ellipticprobe android.permission.DUMP
 ```
 

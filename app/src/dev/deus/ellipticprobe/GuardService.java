@@ -14,6 +14,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -41,6 +42,7 @@ public final class GuardService extends Service {
     public static final String ACTION_START = "dev.deus.ellipticprobe.START";
     public static final String ACTION_STOP = "dev.deus.ellipticprobe.STOP";
     public static final String ACTION_POKE = "dev.deus.ellipticprobe.POKE";
+    public static final String EXTRA_START_SOURCE = "start_source";
     private static final String CHANNEL = "elliptic_guard_channel_v05";
     private static final int NOTIFICATION_ID = 3305;
     private static final long AWAKE_PERIOD_MS = 4000L;
@@ -64,7 +66,7 @@ public final class GuardService extends Service {
     private boolean receiverRegistered = false;
     private boolean sensorRegistered = false;
     private volatile boolean interactive = true;
-    private boolean stopping = false;
+    private volatile boolean stopping = false;
     private long lastAttemptAt = 0L;
     private long lastEventLogAt = 0L;
     private long lastCommandLogAt = 0L;
@@ -99,20 +101,33 @@ public final class GuardService extends Service {
             return START_NOT_STICKY;
         }
         try {
-            startForeground(NOTIFICATION_ID, notification(),
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+            // specialUse exists from API 34; minSdk remains 31.
+            startForeground(NOTIFICATION_ID, notification(), Build.VERSION.SDK_INT >= 34
+                    ? ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE : 0);
         } catch (Exception e) {
             GuardState.log(this, "ERROR FGS: " + e + " (posible bloqueo HyperOS/Android).");
             stopSelf();
             return START_NOT_STICKY;
         }
+        String source = intent == null ? "REINICIO_STICKY"
+                : intent.getStringExtra(EXTRA_START_SOURCE);
+        GuardState.log(this, "SERVICIO: FGS confirmado; version=" + GuardState.version(this)
+                + "; origen=" + (source == null ? "INTERFAZ" : source)
+                + "; startId=" + startId);
         if (!SensorControl.hasDump(this)) {
             GuardState.log(this, "ERROR: no se concedio DUMP; el vigilante se detiene.");
             stopSelf();
             return START_NOT_STICKY;
         }
-        if (!running) startMonitoring();
-        else if (ACTION_POKE.equals(action)) {
+        if (!running) {
+            try {
+                startMonitoring();
+            } catch (Exception e) {
+                GuardState.log(this, "ERROR inicializando vigilancia: " + e);
+                stopSelf();
+                return START_NOT_STICKY;
+            }
+        } else if (ACTION_POKE.equals(action)) {
             monitor.post(() -> launchBurst("PETICION_MANUAL"));
         }
         return START_STICKY;
@@ -130,8 +145,7 @@ public final class GuardService extends Service {
         attempts = 0;
         lastAttemptAt = 0L;
         stopping = false;
-        running = true;
-        GuardState.log(this, "VIGILANTE INICIADO. UID=" + android.os.Process.myUid()
+        GuardState.log(this, "VIGILANTE INICIALIZANDO. UID=" + android.os.Process.myUid()
                 + "; handle=0x" + SensorControl.HANDLE
                 + "; pantalla=" + (interactive ? "ON" : "OFF")
                 + "; sensor=" + proximity.getName());
@@ -162,6 +176,7 @@ public final class GuardService extends Service {
             stopSelf();
             return;
         }
+        running = true;
         GuardState.log(this, "Listener Elliptic registrado y PERMANENTE mientras este activo el vigilante.");
 
         displayReceiver = new BroadcastReceiver() {
@@ -188,7 +203,12 @@ public final class GuardService extends Service {
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_USER_PRESENT);
         try {
-            registerReceiver(displayReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+            if (Build.VERSION.SDK_INT >= 33) {
+                registerReceiver(displayReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                // These three actions are protected system broadcasts.
+                registerReceiver(displayReceiver, filter);
+            }
             receiverRegistered = true;
         } catch (Exception e) {
             GuardState.log(this, "ERROR registrando eventos de pantalla: " + e);
@@ -258,7 +278,7 @@ public final class GuardService extends Service {
         if (manager == null) return;
         NotificationChannel channel = new NotificationChannel(CHANNEL, "Elliptic Guard",
                 NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription("Vigilancia de reactivaciones del sensor Elliptic Proximity");
+        channel.setDescription(getString(R.string.notif_channel_description));
         manager.createNotificationChannel(channel);
     }
 
@@ -276,11 +296,11 @@ public final class GuardService extends Service {
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         return new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(notificationIcon())
-                .setContentTitle("Elliptic Guard activo")
-                .setContentText("Vigilando y desactivando la proximidad virtual")
+                .setContentTitle(getString(R.string.notif_active))
+                .setContentText(getString(R.string.notif_text))
                 .setOngoing(true)
                 .setContentIntent(content)
-                .addAction(new Notification.Action.Builder(null, "Detener", stopIntent).build())
+                .addAction(new Notification.Action.Builder(null, getString(R.string.notif_stop), stopIntent).build())
                 .build();
     }
 

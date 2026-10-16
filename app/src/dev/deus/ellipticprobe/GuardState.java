@@ -16,6 +16,16 @@ public final class GuardState {
 
     private GuardState() { }
 
+    public static String version(Context c) {
+        try {
+            android.content.pm.PackageInfo info = c.getPackageManager()
+                    .getPackageInfo(c.getPackageName(), 0);
+            return info.versionName + " (" + info.getLongVersionCode() + ")";
+        } catch (android.content.pm.PackageManager.NameNotFoundException e) {
+            return "desconocida";
+        }
+    }
+
     public static boolean enabled(Context c) {
         return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(ENABLED, true);
     }

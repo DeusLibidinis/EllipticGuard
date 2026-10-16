@@ -13,7 +13,8 @@ The v0.6 **already contains** a manifest `BootReceiver` for `android.intent.acti
 ## Interpreting logs
 
 - `RECEPTOR android.intent.action.BOOT_COMPLETED: iniciando servicio vigilante.`: the boot broadcast was delivered.
-- `VIGILANTE INICIADO`: the foreground service reached monitoring initialization.
+- v0.6 `VIGILANTE INICIADO` / candidate `VIGILANTE INICIALIZANDO`: monitoring initialization began, not proof that registration succeeded.
+- Candidate `SERVICIO: FGS confirmado`: foreground promotion succeeded; `origen` identifies the initiating broadcast or sticky restart.
 - `Listener Elliptic registrado y PERMANENTE`: the listener was registered.
 - `DISABLE #1 ... exit=0`: the command process completed. **Not proof of sensor suppression.**
 - `ERROR FGS`: Android/HyperOS rejected foreground-service startup.
@@ -31,3 +32,5 @@ adb shell dumpsys package dev.deus.ellipticprobe | grep -E 'DUMP|BOOT_COMPLETED'
 The first unlock can matter because this v0.6 receiver is **not** declared `directBootAware`, and its preferences are in credential-encrypted app storage. A production direct-boot design would require separate handling and explicit testing.
 
 The notification should remain while the foreground service is running; success after one reboot should be followed by longer stability/battery tests before publishing a "works after reboot" claim.
+
+For the candidate, receipt is logged as `RECEPTOR <action>: recibido` with version, autostart and DUMP status; a separate entry confirms the start request was submitted. See [Update test](UPDATE_TEST.md). The candidate remains non-directBootAware and requires the first unlock.

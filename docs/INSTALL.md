@@ -19,3 +19,7 @@
 - Granting `DUMP` exposes diagnostic access to the app. Install only trusted builds and revoke permission/uninstall if no longer needed.
 
 Never include a debug signing key, proprietary ROM binaries, full user logs or credentials in compatibility reports.
+
+## Candidate build and update validation
+
+`fish app/build.fish debug` (from repository root) creates `app/build/debug/EllipticGuard-v0.6.1-beta.1-debug.apk`. Preserve the original debug key for an in-place diagnostic update. For production signing use [Release preparation](RELEASE.md). Follow [Update test](UPDATE_TEST.md) before changing signing keys or opening the UI after an update.
